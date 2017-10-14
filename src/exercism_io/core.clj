@@ -206,7 +206,43 @@
                                                                        (testing
                                                                          (is (throws? IllegalArgumentException (collatz 0)) :default :advanced)
                                                                          (is (throws? IllegalArgumentException (collatz -12)) :default :advanced)
-                                                                         ))))))))
+                                                                         ))))
+
+                                (subject 'subj-series
+                                         "Series"
+
+                                         (learn
+                                           (text
+                                             (p "Given a string of digits, output all the contiguous substrings of length " (hi "n") " in that string.")
+                                             (p "For example, the string " (bold "\"49142\"") " has the following 3-digit series:")
+                                             (p (bold "491"))
+                                             (p (bold "914"))
+                                             (p (bold "142"))
+                                             (p "And the following 4-digit series:")
+                                             (p (bold "4914"))
+                                             (p (bold "9142"))
+                                             (p "And if you ask for a 6-digit series from a 5-digit string, you deserve whatever you get.")
+                                             (p "Note that these series are only required to occupy adjacent positions in the input; the digits need not be numerically consecutive.")))
+
+                                         (instruction 'ins-series
+                                                      (run-pre-tests? true)
+                                                      (initial-code "(ns exercises.series)\n\n(defn slices\n  [x n]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-series
+                                                                       (text
+                                                                         (code (= [] (slices "" 1)))
+                                                                         (code (= [""] (slices "123" 0)))
+                                                                         (code (= [] (slices "123" 1000)))
+                                                                         (code (= ["123"] (slices "123" 3)))
+                                                                         (code (= #{"123" "234" "345"} (set (slices "12345" 3)))))
+
+                                                                       (testing
+                                                                         (is (= [] (slices "" 1)) :default :advanced)
+                                                                         (is (= [""] (slices "123" 0)) :default :advanced)
+                                                                         (is (= [] (slices "123" 1000)) :default :advanced)
+                                                                         (is (= ["123"] (slices "123" 3)) :default :advanced)
+                                                                         (is (= #{"123" "234" "345"} (set (slices "12345" 3))) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -341,3 +377,25 @@
                    12 9
                    1000000 152
                    (throw (IllegalArgumentException. "Error")))))
+
+(defcoursetest test-13
+               [ch-exercism sub-ch-all-exercises subj-series ins-series sub-ins-series]
+               (defn helper
+                 [x n c]
+                 (cond
+                   (> n (count x))
+                   []
+
+                   (= n 0)
+                   [""]
+
+                   (seq x)
+                   (conj (conj c (mapv #(apply str %) (into [] (partition n (seq x)))))
+                         (helper (apply str (drop 1 x)) n c))
+
+                   :else
+                   c))
+
+               (defn slices
+                 [x n]
+                 (flatten (helper x n []))))
