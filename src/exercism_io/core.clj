@@ -92,7 +92,56 @@
 
                                                                        (testing
                                                                          (is (= "Fine. Be that way!" (response-for "")) :default :advanced)
-                                                                         (is (= "Fine. Be that way!" (response-for "      ")) :default :advanced)))))))))
+                                                                         (is (= "Fine. Be that way!" (response-for "      ")) :default :advanced)))))
+
+                                (subject 'subj-rna
+                                         "Rna Transcription"
+
+                                         (learn
+                                           (text
+                                             (p "Given a DNA strand, return its RNA complement (per RNA transcription).")
+                                             (p "Both DNA and RNA strands are a sequence of nucleotides.")
+                                             (p "The four nucleotides found in DNA are adenine (A), cytosine (C), guanine (G) and thymine (T).")
+                                             (p "The four nucleotides found in RNA are adenine (A), cytosine (C), guanine (G) and uracil (U).")
+                                             (p "Given a DNA strand, its transcribed RNA strand is formed by replacing each nucleotide with its complement:")
+                                             (p (hi "G") " -> " (hi "C"))
+                                             (p (hi "C") " -> " (hi "G"))
+                                             (p (hi "T") " -> " (hi "A"))
+                                             (p (hi "A") " -> " (hi "U"))))
+
+                                         (instruction 'ins-rna
+                                                      (run-pre-tests? true)
+                                                      (initial-code "(ns exercises.rna)\n\n(defn to-rna\n  [x]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-single-transform
+
+                                                                       (text
+                                                                         (code (= "G" (to-rna "C")))
+                                                                         (code (= "C" (to-rna "G")))
+                                                                         (code (= "U" (to-rna "A")))
+                                                                         (code (= "A" (to-rna "T"))))
+
+                                                                       (testing
+                                                                         (is (= "G" (to-rna "C")) :default :advanced)
+                                                                         (is (= "C" (to-rna "G")) :default :advanced)
+                                                                         (is (= "U" (to-rna "A")) :default :advanced)
+                                                                         (is (= "A" (to-rna "T")) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-multi-transform
+
+                                                                       (text
+                                                                         (code (= "UGCACCAGAAUU" (to-rna "ACGTGGTCTTAA"))))
+
+                                                                       (testing
+                                                                         (is (= "UGCACCAGAAUU" (to-rna "ACGTGGTCTTAA")) :default :advanced)))
+                                                      (sub-instruction 'sub-ins-failed-transform
+
+                                                                       (text
+                                                                         (code (throws? AssertionError (to-rna "XCGFGGTDTTAA"))))
+
+                                                                       (testing
+                                                                         (is (throws? AssertionError (to-rna "XCGFGGTDTTAA")) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -146,3 +195,39 @@
                    (shouting? phrase) "Woah, chill out!"
                    (question? phrase) "Sure."
                    :else "Whatever.")))
+
+(defcoursetest test-5
+               [ch-exercism sub-ch-all-exercises subj-rna ins-rna sub-ins-single-transform]
+               (defn to-rna [nucleotides]
+                 (let [n (case nucleotides
+                           "C" "G"
+                           "G" "C"
+                           "A" "U"
+                           "T" "A"
+                           (throw (AssertionError. "Not found nucleotides")))]
+                   (clojure.string/replace nucleotides nucleotides n))))
+
+(defcoursetest test-6
+               [ch-exercism sub-ch-all-exercises subj-rna ins-rna sub-ins-multi-transform]
+               (defn to-rna [nucleotides]
+                 (apply str (map (fn [x]
+                                   (let [x (str x)
+                                         n (case x
+                                             "C" "G"
+                                             "G" "C"
+                                             "A" "U"
+                                             "T" "A")]
+                                     (clojure.string/replace x x n))) (seq nucleotides)))))
+
+(defcoursetest test-7
+               [ch-exercism sub-ch-all-exercises subj-rna ins-rna sub-ins-failed-transform]
+               (defn to-rna [nucleotides]
+                 (apply str (map (fn [x]
+                                   (let [x (str x)
+                                         n (case x
+                                             "C" "G"
+                                             "G" "C"
+                                             "A" "U"
+                                             "T" "A"
+                                             (throw (AssertionError. "Not found nucleotides")))]
+                                     (clojure.string/replace x x n))) (seq nucleotides)))))
