@@ -141,7 +141,72 @@
                                                                          (code (throws? AssertionError (to-rna "XCGFGGTDTTAA"))))
 
                                                                        (testing
-                                                                         (is (throws? AssertionError (to-rna "XCGFGGTDTTAA")) :default :advanced)))))))))
+                                                                         (is (throws? AssertionError (to-rna "XCGFGGTDTTAA")) :default :advanced)))))
+
+                                (subject 'subj-collatz
+                                         "Collatz Conjecture"
+
+                                         (learn
+                                           (text
+                                             (p "The Collatz Conjecture or " (bold "3x+1") " problem can be summarized as follows:")
+                                             (p "Take any positive integer n. If n is even, divide n by 2 to get n / 2. If n is odd, multiply n by 3 and add 1 to get 3n + 1. Repeat the process indefinitely. The conjecture states that no matter which number you start with, you will always reach 1 eventually.")
+                                             (p "Given a number n, return the number of steps required to reach 1.")
+                                             (p "Starting with n = 12, the steps would be as follows:")
+                                             (code ";1.  12\n;2.  6\n;3.  3\n;4.  10\n;5.  5\n;6.  16\n;7.  8\n;8.  4\n;9.  2\n;10. 1")
+                                             (p "Resulting in 9 steps. So for input n = 12, the return value would be 9.")))
+
+                                         (instruction 'ins-collatz
+                                                      (run-pre-tests? true)
+                                                      (initial-code "(ns exercises.rna)\n\n(defn collatz\n  [x]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-steps-for-1
+
+                                                                       (text
+                                                                         (p "Zero steps for one:")
+                                                                         (code (= 0 (collatz 1))))
+
+                                                                       (testing
+                                                                         (is (= 0 (collatz 1)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-steps-for-16
+
+                                                                       (text
+                                                                         (p "Divide if even:")
+                                                                         (code (= 4 (collatz 16))))
+
+                                                                       (testing
+                                                                         (is (= 4 (collatz 16)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-steps-for-12
+
+                                                                       (text
+                                                                         (p "Even and odd steps:")
+                                                                         (code (= 9 (collatz 12))))
+
+                                                                       (testing
+                                                                         (is (= 9 (collatz 12)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-steps-for-1000000
+
+                                                                       (text
+                                                                         (p "Large number of even and odd steps:")
+                                                                         (code (= 152 (collatz 1000000))))
+
+                                                                       (testing
+                                                                         (is (= 152 (collatz 1000000)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-steps-for-0-and-negative
+
+                                                                       (text
+                                                                         (p "Zero and negative value lead an error")
+                                                                         (code (throws? IllegalArgumentException (collatz 0)))
+                                                                         (code (throws? IllegalArgumentException (collatz -12))))
+
+                                                                       (testing
+                                                                         (is (throws? IllegalArgumentException (collatz 0)) :default :advanced)
+                                                                         (is (throws? IllegalArgumentException (collatz -12)) :default :advanced)
+                                                                         ))))))))
 
 
 (defcoursetest test-1
@@ -231,3 +296,48 @@
                                              "T" "A"
                                              (throw (AssertionError. "Not found nucleotides")))]
                                      (clojure.string/replace x x n))) (seq nucleotides)))))
+
+;;MOCK!!!!!!!!!
+(defcoursetest test-8
+               [ch-exercism sub-ch-all-exercises subj-collatz ins-collatz sub-ins-steps-for-1]
+               (defn collatz
+                 [x]
+                 0))
+
+(defcoursetest test-9
+               [ch-exercism sub-ch-all-exercises subj-collatz ins-collatz sub-ins-steps-for-16]
+               (defn collatz
+                 [x]
+                 (if (= 1 x)
+                   0
+                   4)))
+
+(defcoursetest test-10
+               [ch-exercism sub-ch-all-exercises subj-collatz ins-collatz sub-ins-steps-for-12]
+               (defn collatz
+                 [x]
+                 (case x
+                   1 0
+                   16 4
+                   12 9)))
+
+(defcoursetest test-11
+               [ch-exercism sub-ch-all-exercises subj-collatz ins-collatz sub-ins-steps-for-1000000]
+               (defn collatz
+                 [x]
+                 (case x
+                   1 0
+                   16 4
+                   12 9
+                   1000000 152)))
+
+(defcoursetest test-12
+               [ch-exercism sub-ch-all-exercises subj-collatz ins-collatz sub-ins-steps-for-0-and-negative]
+               (defn collatz
+                 [x]
+                 (case x
+                   1 0
+                   16 4
+                   12 9
+                   1000000 152
+                   (throw (IllegalArgumentException. "Error")))))
