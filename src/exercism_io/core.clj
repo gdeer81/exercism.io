@@ -225,7 +225,7 @@
                                              (p "Note that these series are only required to occupy adjacent positions in the input; the digits need not be numerically consecutive.")))
 
                                          (instruction 'ins-series
-                                                      (run-pre-tests? true)
+                                                      (run-pre-tests? false)
                                                       (initial-code "(ns exercises.series)\n\n(defn slices\n  [x n]\n  )")
                                                       (rule :no-rule? true)
 
@@ -242,7 +242,79 @@
                                                                          (is (= [""] (slices "123" 0)) :default :advanced)
                                                                          (is (= [] (slices "123" 1000)) :default :advanced)
                                                                          (is (= ["123"] (slices "123" 3)) :default :advanced)
-                                                                         (is (= #{"123" "234" "345"} (set (slices "12345" 3))) :default :advanced)))))))))
+                                                                         (is (= #{"123" "234" "345"} (set (slices "12345" 3))) :default :advanced)))))
+
+                                (subject 'subj-phone-number
+                                         "Phone Number"
+
+                                         (learn
+                                           (text
+                                             (p "Clean up user-entered phone numbers so that they can be sent SMS messages.")
+                                             (p "The " (bold "North American Numbering Plan (NANP)") " is a telephone numbering system used by many countries in North America like the United States, Canada or Bermuda. All NANP-countries share the same international country code: " (hi "1") ".")
+                                             (p "NANP numbers are ten-digit numbers consisting of a three-digit Numbering Plan Area code, commonly known as area code, followed by a seven-digit local number. The first three digits of the local number represent the " (italic "exchange code") ", followed by the unique four-digit number which is the subscriber number.")
+                                             (p "The format is usually represented as:")
+                                             (p (hi "(NXX)-NXX-XXXX\n"))
+                                             (p "where " (hi "N") " is any digit from 2 through 9 and " (hi "X") " is any digit from 0 through 9.")
+                                             (p "Your task is to clean up differently formated telephone numbers by removing punctuation and the country code (1) if present.")
+                                             (p "For example, the inputs:")
+                                             (p (hi "+1 (613)-995-0253"))
+                                             (p (hi "613-995-0253"))
+                                             (p (hi "1 613 995 0253"))
+                                             (p (hi "613.995.0253"))
+                                             (p "should all produce the output:")
+                                             (p (hi "6139950253"))
+                                             (p (bold "Note:") " As this exercise only deals with telephone numbers used in NANP-countries, only 1 is considered a valid country code.")))
+
+                                         (instruction 'ins-phone-number
+                                                      (run-pre-tests? true)
+                                                      (initial-code "(ns exercises.phone-number)\n\n(defn number\n  [x]\n  )\n\n(defn area-code\n  [x]\n  )\n\n(defn pretty-print\n  [x]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-cleans
+
+                                                                       (text
+                                                                         (code (= "1234567890" (number "(123) 456-7890")))
+                                                                         (code (= "1234567890" (number "123.456.7890"))))
+
+                                                                       (testing
+                                                                         (is (= "1234567890" (number "(123) 456-7890")) :default :advanced)
+                                                                         (is (= "1234567890" (number "123.456.7890")) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-valid
+
+                                                                       (text
+                                                                         (code (= "1234567890" (number "11234567890"))))
+
+                                                                       (testing
+                                                                         (is (= "1234567890" (number "11234567890")) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-invalid-when-9-or-11-digits
+
+                                                                       (text
+                                                                         (code (= "0000000000" (number "123456789")))
+                                                                         (code (= "0000000000" (number "21234567890"))))
+
+                                                                       (testing
+                                                                         (is (= "0000000000" (number "123456789")) :default :advanced)
+                                                                         (is (= "0000000000" (number "21234567890")) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-area-code
+
+                                                                       (text
+                                                                         (code (= "123" (area-code "1234567890"))))
+
+                                                                       (testing
+                                                                         (is (= "123" (area-code "1234567890")) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-pretty-print
+
+                                                                       (text
+                                                                         (code (= "(123) 456-7890" (pretty-print "1234567890")))
+                                                                         (code (= "(123) 456-7890" (pretty-print "11234567890"))))
+
+                                                                       (testing
+                                                                         (is (= "(123) 456-7890" (pretty-print "1234567890")) :default :advanced)
+                                                                         (is (= "(123) 456-7890" (pretty-print "11234567890")) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -399,3 +471,133 @@
                (defn slices
                  [x n]
                  (flatten (helper x n []))))
+
+(defcoursetest test-14
+               [ch-exercism sub-ch-all-exercises subj-phone-number ins-phone-number sub-ins-cleans]
+               (def length 10)
+               (def bad-number (apply str (repeat length "0")))
+
+               (defn- clean
+                 [number]
+                 (clojure.string/replace number #"[^0-9]+" ""))
+
+               (defn- phone-with-us-or-ca-country-code?
+                 [digits]
+                 (and (= (count digits) (+ length 1))
+                      (= (subs digits 0 1) "1")))
+
+               (defn number
+                 [digits]
+                 (let [digits (clean digits)]
+                   (cond
+                     (= (count digits) length) digits
+                     (= (phone-with-us-or-ca-country-code? digits) true) (subs digits 1)
+                     :else bad-number))))
+
+(defcoursetest test-15
+               [ch-exercism sub-ch-all-exercises subj-phone-number ins-phone-number sub-ins-valid]
+               (def length 10)
+               (def bad-number (apply str (repeat length "0")))
+
+               (defn- clean
+                 [number]
+                 (clojure.string/replace number #"[^0-9]+" ""))
+
+               (defn- phone-with-us-or-ca-country-code?
+                 [digits]
+                 (and (= (count digits) (+ length 1))
+                      (= (subs digits 0 1) "1")))
+
+               (defn number
+                 [digits]
+                 (let [digits (clean digits)]
+                   (cond
+                     (= (count digits) length) digits
+                     (= (phone-with-us-or-ca-country-code? digits) true) (subs digits 1)
+                     :else bad-number))))
+
+(defcoursetest test-16
+               [ch-exercism sub-ch-all-exercises subj-phone-number ins-phone-number sub-ins-invalid-when-9-or-11-digits]
+               (def length 10)
+               (def bad-number (apply str (repeat length "0")))
+
+               (defn- clean
+                 [number]
+                 (clojure.string/replace number #"[^0-9]+" ""))
+
+               (defn- phone-with-us-or-ca-country-code?
+                 [digits]
+                 (and (= (count digits) (+ length 1))
+                      (= (subs digits 0 1) "1")))
+
+               (defn number
+                 [digits]
+                 (let [digits (clean digits)]
+                   (cond
+                     (= (count digits) length) digits
+                     (= (phone-with-us-or-ca-country-code? digits) true) (subs digits 1)
+                     :else bad-number))))
+
+(defcoursetest test-17
+               [ch-exercism sub-ch-all-exercises subj-phone-number ins-phone-number sub-ins-area-code]
+               (def length 10)
+               (def bad-number (apply str (repeat length "0")))
+
+               (defn- clean
+                 [number]
+                 (clojure.string/replace number #"[^0-9]+" ""))
+
+               (defn- phone-with-us-or-ca-country-code?
+                 [digits]
+                 (and (= (count digits) (+ length 1))
+                      (= (subs digits 0 1) "1")))
+
+               (defn number
+                 [digits]
+                 (let [digits (clean digits)]
+                   (cond
+                     (= (count digits) length) digits
+                     (= (phone-with-us-or-ca-country-code? digits) true) (subs digits 1)
+                     :else bad-number)))
+
+               (defn area-code
+                 [digits]
+                 (subs (number digits) 0 3)))
+
+(defcoursetest test-18
+               [ch-exercism sub-ch-all-exercises subj-phone-number ins-phone-number sub-ins-pretty-print]
+               (def length 10)
+               (def bad-number (apply str (repeat length "0")))
+
+               (defn- clean
+                 [number]
+                 (clojure.string/replace number #"[^0-9]+" ""))
+
+               (defn- phone-with-us-or-ca-country-code?
+                 [digits]
+                 (and (= (count digits) (+ length 1))
+                      (= (subs digits 0 1) "1")))
+
+               (defn number
+                 [digits]
+                 (let [digits (clean digits)]
+                   (cond
+                     (= (count digits) length) digits
+                     (= (phone-with-us-or-ca-country-code? digits) true) (subs digits 1)
+                     :else bad-number)))
+
+               (defn area-code
+                 [digits]
+                 (subs (number digits) 0 3))
+
+               (defn- exchange
+                 [digits]
+                 (subs (number digits) 3 6))
+
+               (defn- subscriber
+                 [digits]
+                 (subs (number digits) 6))
+
+               (defn pretty-print
+                 [digits]
+                 (format "(%s) %s-%s" (area-code digits) (exchange digits) (subscriber digits))))
