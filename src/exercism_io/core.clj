@@ -428,7 +428,31 @@
                                                                        (testing
                                                                          (is (= "CMXI" (numerals 911)) :default :advanced)
                                                                          (is (= "MXXIV" (numerals 1024)) :default :advanced)
-                                                                         (is (= "MMM" (numerals 3000)) :default :advanced)))))))))
+                                                                         (is (= "MMM" (numerals 3000)) :default :advanced)))))
+
+                                (subject 'subj-gigasecond
+                                         "Gigasecond"
+
+                                         (learn
+                                           (text
+                                             (p "Calculate the moment when someone has lived for " (hi "10ˆ9") " seconds.")
+                                             (p "A gigasecond is " (hi "10ˆ9") " (1,000,000,000) seconds.")))
+
+                                         (instruction 'ins-giga
+                                                      (run-pre-tests? false)
+                                                      (initial-code "(ns exercises.gigasecond)\n\n(defn gigasecond\n  [year month day]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-giga
+                                                                       (text
+                                                                         (code (= [2043 1 1] (gigasecond 2011 4 25)))
+                                                                         (code (= [2009 2 19] (gigasecond 1977 6 13)))
+                                                                         (code (= [1991 3 27] (gigasecond 1959 7 19))))
+
+                                                                       (testing
+                                                                         (is (= [2043 1 1] (gigasecond 2011 4 25)) :default :advanced)
+                                                                         (is (= [2009 2 19] (gigasecond 1977 6 13)) :default :advanced)
+                                                                         (is (= [1991 3 27] (gigasecond 1959 7 19)) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -867,3 +891,22 @@
                  (->> conversions
                       (reduce-kv amount->numerals ["" number])
                       (first))))
+
+
+(defcoursetest test-25
+               [ch-exercism sub-ch-all-exercises subj-gigasecond ins-giga sub-ins-giga]
+               (def ^:private ->seconds
+                 (bigint (Math/pow 10 9)))
+
+               (defn- build-offset-cal [year month day offset]
+                 (doto (java.util.Calendar/getInstance)
+                   (.set year (dec month) day 0 0 offset)))
+
+               (defn- cal->date-vec [cal]
+                 [(.get cal java.util.Calendar/YEAR)
+                  (inc (.get cal java.util.Calendar/MONTH))
+                  (.get cal java.util.Calendar/DAY_OF_MONTH)])
+
+               (defn gigasecond [year month day]
+                 (-> (build-offset-cal year month day ->seconds)
+                     cal->date-vec)))
