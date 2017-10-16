@@ -343,7 +343,92 @@
                                                                          (is (true? (leap-year? 1996)) :default :advanced)
                                                                          (is (false? (leap-year? 1997)) :default :advanced)
                                                                          (is (false? (leap-year? 1900)) :default :advanced)
-                                                                         (is (true? (leap-year? 2400)) :default :advanced)))))))))
+                                                                         (is (true? (leap-year? 2400)) :default :advanced)))))
+
+                                (subject 'subj-roman
+                                         "Roman Numerals"
+
+                                         (learn
+                                           (text
+                                             (p "Write a function to convert from normal numbers to Roman Numerals.")
+                                             (p "The Romans were a clever bunch. They conquered most of Europe and ruled it for hundreds of years. They invented concrete and straight roads and even bikinis. One thing they never discovered though was the number zero. This made writing and dating extensive histories of their exploits slightly more challenging, but the system of numbers they came up with is still in use today. For example the BBC uses Roman numerals to date their programmes.")
+                                             (p "The Romans wrote numbers using letters - I, V, X, L, C, D, M. (notice these letters have lots of straight lines and are hence easy to hack into stone tablets).")
+                                             (p (hi "1  => I"))
+                                             (p (hi "10  => X"))
+                                             (p (hi "7  => VII"))
+                                             (p "There is no need to be able to convert numbers larger than about 3000. (The Romans themselves didn't tend to go any higher)")
+                                             (p "Wikipedia says: Modern Roman numerals ... are written by expressing each digit separately starting with the left most digit and skipping any digit with a value of zero.")
+                                             (p "To see this in practice, consider the example of 1990.")
+                                             (p "In Roman numerals 1990 is MCMXC:")
+                                             (p "1000=M 900=CM 90=XC")
+                                             (p "2008 is written as MMVIII:")
+                                             (p "2000=MM 8=VIII")))
+
+                                         (instruction 'ins-roman
+                                                      (run-pre-tests? true)
+                                                      (initial-code "(ns exercises.roman-numerals)\n\n(defn numerals\n  [n]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-up-to-4
+                                                                       (text
+                                                                         (code (= "I" (numerals 1)))
+                                                                         (code (= "II" (numerals 2)))
+                                                                         (code (= "III" (numerals 3))))
+
+                                                                       (testing
+                                                                         (is (= "I" (numerals 1)) :default :advanced)
+                                                                         (is (= "II" (numerals 2)) :default :advanced)
+                                                                         (is (= "III" (numerals 3)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-5ish
+                                                                       (text
+                                                                         (code (= "IV" (numerals 4)))
+                                                                         (code (= "V" (numerals 5)))
+                                                                         (code (= "VI" (numerals 6))))
+
+                                                                       (testing
+                                                                         (is (= "IV" (numerals 4)) :default :advanced)
+                                                                         (is (= "V" (numerals 5)) :default :advanced)
+                                                                         (is (= "VI" (numerals 6)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-X
+                                                                       (text
+                                                                         (code (= "IX" (numerals 9)))
+                                                                         (code (= "XXVII" (numerals 27)))
+                                                                         (code (= "XLVIII" (numerals 48)))
+                                                                         (code (= "LIX" (numerals 59))))
+
+                                                                       (testing
+                                                                         (is (= "IX" (numerals 9)) :default :advanced)
+                                                                         (is (= "XXVII" (numerals 27)) :default :advanced)
+                                                                         (is (= "XLVIII" (numerals 48)) :default :advanced)
+                                                                         (is (= "LIX" (numerals 59)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-C
+                                                                       (text
+                                                                         (code (= "XCIII" (numerals 93)))
+                                                                         (code (= "CXLI" (numerals 141)))
+                                                                         (code (= "CLXIII" (numerals 163)))
+                                                                         (code (= "CDII" (numerals 402)))
+                                                                         (code (= "DLXXV" (numerals 575))))
+
+                                                                       (testing
+                                                                         (is (= "XCIII" (numerals 93)) :default :advanced)
+                                                                         (is (= "CXLI" (numerals 141)) :default :advanced)
+                                                                         (is (= "CLXIII" (numerals 163)) :default :advanced)
+                                                                         (is (= "CDII" (numerals 402)) :default :advanced)
+                                                                         (is (= "DLXXV" (numerals 575)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-M
+                                                                       (text
+                                                                         (code (= "CMXI" (numerals 911)))
+                                                                         (code (= "MXXIV" (numerals 1024)))
+                                                                         (code (= "MMM" (numerals 3000))))
+
+                                                                       (testing
+                                                                         (is (= "CMXI" (numerals 911)) :default :advanced)
+                                                                         (is (= "MXXIV" (numerals 1024)) :default :advanced)
+                                                                         (is (= "MMM" (numerals 3000)) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -640,6 +725,145 @@
                  (cond
                    (divisible-by? year 400) true
                    (divisible-by? year 100) false
-                   (divisible-by? year 4)   true
+                   (divisible-by? year 4) true
                    :else false)))
 
+(defcoursetest test-20
+               [ch-exercism sub-ch-all-exercises subj-roman ins-roman sub-ins-up-to-4]
+               (def ^:private conversions
+                 (sorted-map-by >
+                                1000 "M"
+                                900 "CM"
+                                500 "D"
+                                400 "CD"
+                                100 "C"
+                                90 "XC"
+                                50 "L"
+                                40 "XL"
+                                10 "X"
+                                9 "IX"
+                                5 "V"
+                                4 "IV"
+                                1 "I"))
+
+               (defn- amount->numerals [[output total] amount numeral]
+                 (let [times (quot total amount)]
+                   [(apply str output (repeat times numeral))
+                    (rem total amount)]))
+
+               (defn numerals [number]
+                 (->> conversions
+                      (reduce-kv amount->numerals ["" number])
+                      (first))))
+
+(defcoursetest test-21
+               [ch-exercism sub-ch-all-exercises subj-roman ins-roman sub-ins-5ish]
+               (def ^:private conversions
+                 (sorted-map-by >
+                                1000 "M"
+                                900 "CM"
+                                500 "D"
+                                400 "CD"
+                                100 "C"
+                                90 "XC"
+                                50 "L"
+                                40 "XL"
+                                10 "X"
+                                9 "IX"
+                                5 "V"
+                                4 "IV"
+                                1 "I"))
+
+               (defn- amount->numerals [[output total] amount numeral]
+                 (let [times (quot total amount)]
+                   [(apply str output (repeat times numeral))
+                    (rem total amount)]))
+
+               (defn numerals [number]
+                 (->> conversions
+                      (reduce-kv amount->numerals ["" number])
+                      (first))))
+
+(defcoursetest test-22
+               [ch-exercism sub-ch-all-exercises subj-roman ins-roman sub-ins-X]
+               (def ^:private conversions
+                 (sorted-map-by >
+                                1000 "M"
+                                900 "CM"
+                                500 "D"
+                                400 "CD"
+                                100 "C"
+                                90 "XC"
+                                50 "L"
+                                40 "XL"
+                                10 "X"
+                                9 "IX"
+                                5 "V"
+                                4 "IV"
+                                1 "I"))
+
+               (defn- amount->numerals [[output total] amount numeral]
+                 (let [times (quot total amount)]
+                   [(apply str output (repeat times numeral))
+                    (rem total amount)]))
+
+               (defn numerals [number]
+                 (->> conversions
+                      (reduce-kv amount->numerals ["" number])
+                      (first))))
+
+(defcoursetest test-23
+               [ch-exercism sub-ch-all-exercises subj-roman ins-roman sub-ins-C]
+               (def ^:private conversions
+                 (sorted-map-by >
+                                1000 "M"
+                                900 "CM"
+                                500 "D"
+                                400 "CD"
+                                100 "C"
+                                90 "XC"
+                                50 "L"
+                                40 "XL"
+                                10 "X"
+                                9 "IX"
+                                5 "V"
+                                4 "IV"
+                                1 "I"))
+
+               (defn- amount->numerals [[output total] amount numeral]
+                 (let [times (quot total amount)]
+                   [(apply str output (repeat times numeral))
+                    (rem total amount)]))
+
+               (defn numerals [number]
+                 (->> conversions
+                      (reduce-kv amount->numerals ["" number])
+                      (first))))
+
+(defcoursetest test-24
+               [ch-exercism sub-ch-all-exercises subj-roman ins-roman sub-ins-M]
+               (def ^:private conversions
+                 (sorted-map-by >
+                                1000 "M"
+                                900 "CM"
+                                500 "D"
+                                400 "CD"
+                                100 "C"
+                                90 "XC"
+                                50 "L"
+                                40 "XL"
+                                10 "X"
+                                9 "IX"
+                                5 "V"
+                                4 "IV"
+                                1 "I"))
+
+               (defn- amount->numerals [[output total] amount numeral]
+                 (let [times (quot total amount)]
+                   [(apply str output (repeat times numeral))
+                    (rem total amount)]))
+
+               (defn numerals [number]
+                 (->> conversions
+                      (reduce-kv amount->numerals ["" number])
+                      (first))))
