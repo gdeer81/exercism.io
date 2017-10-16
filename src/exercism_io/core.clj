@@ -494,7 +494,65 @@
                                                                          (code (= 18446744073709551615 (total))))
 
                                                                        (testing
-                                                                         (is (= 18446744073709551615 (total)) :default :advanced)))))))))
+                                                                         (is (= 18446744073709551615 (total)) :default :advanced)))))
+
+                                (subject 'subj-triangle
+                                         "Triangle"
+
+
+                                         (learn
+                                           (text
+                                             (p "Determine if a triangle is equilateral, isosceles, or scalene.")
+                                             (p "An " (italic "equilateral") " triangle has all three sides the same length.")
+                                             (p "An " (italic "isosceles") " triangle has at least two sides the same length. (It is sometimes specified as having exactly two sides the same length, but for the purposes of this exercise we'll say at least two.)")
+                                             (p "A " (italic "scalene") " triangle has all sides of different lengths.")
+
+                                             (p "For a shape to be a triangle at all, all sides have to be of length > 0, and the sum of the lengths of any two sides must be greater than or equal to the length of the third side. See " (link "Triangle Inequality" "https://en.wikipedia.org/wiki/Triangle_inequality") ".")))
+
+                                         (instruction 'ins-triangle
+                                                      (run-pre-tests? true)
+                                                      (initial-code "(ns exercises.triangle)\n\n(defn triangle-type\n  [a b c]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-equilateral
+                                                                       (text
+                                                                         (code (= :equilateral (triangle-type 2 2 2)))
+                                                                         (code (= :equilateral (triangle-type 10 10 10))))
+
+
+                                                                       (testing
+                                                                         (is (= :equilateral (triangle-type 2 2 2)) :default :advanced)
+                                                                         (is (= :equilateral (triangle-type 10 10 10)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-isosceles
+                                                                       (text
+                                                                         (code (= :isosceles (triangle-type 3 4 4)))
+                                                                         (code (= :isosceles (triangle-type 4 3 4))))
+
+
+                                                                       (testing
+                                                                         (is (= :isosceles (triangle-type 3 4 4)) :default :advanced)
+                                                                         (is (= :isosceles (triangle-type 4 3 4)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-scalene
+                                                                       (text
+                                                                         (code (= :scalene (triangle-type 3 4 5))))
+
+
+                                                                       (testing
+                                                                         (is (= :scalene (triangle-type 3 4 5)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-invalid
+                                                                       (text
+                                                                         (code (= :illogical (triangle-type 1 1 50)))
+                                                                         (code (= :illogical (triangle-type 1 2 1)))
+                                                                         (code (= :illogical (triangle-type 2 4 2))))
+
+
+                                                                       (testing
+                                                                         (is (= :illogical (triangle-type 1 1 50)) :default :advanced)
+                                                                         (is (= :illogical (triangle-type 1 2 1)) :default :advanced)
+                                                                         (is (= :illogical (triangle-type 2 4 2)) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -975,3 +1033,73 @@
 
                (defn total []
                  (- (square 65) 1)))
+
+(defcoursetest test-28
+               [ch-exercism sub-ch-all-exercises subj-triangle ins-triangle sub-ins-equilateral]
+               (defn- valid? [a b c]
+                 (and (> (+ a b) c)
+                      (> (+ b c) a)
+                      (> (+ c a) b)))
+
+               (defn- isosceles? [a b c]
+                 (or (= a b)
+                     (= b c)
+                     (= c a)))
+
+               (defn triangle-type [a b c]
+                 (cond
+                   (= a b c) :equilateral)))
+
+(defcoursetest test-29
+               [ch-exercism sub-ch-all-exercises subj-triangle ins-triangle sub-ins-isosceles]
+               (defn- valid? [a b c]
+                 (and (> (+ a b) c)
+                      (> (+ b c) a)
+                      (> (+ c a) b)))
+
+               (defn- isosceles? [a b c]
+                 (or (= a b)
+                     (= b c)
+                     (= c a)))
+
+               (defn triangle-type [a b c]
+                 (cond
+                   (= a b c) :equilateral
+                   (isosceles? a b c) :isosceles)))
+
+(defcoursetest test-30
+               [ch-exercism sub-ch-all-exercises subj-triangle ins-triangle sub-ins-scalene]
+               (defn- valid? [a b c]
+                 (and (> (+ a b) c)
+                      (> (+ b c) a)
+                      (> (+ c a) b)))
+
+               (defn- isosceles? [a b c]
+                 (or (= a b)
+                     (= b c)
+                     (= c a)))
+
+               (defn triangle-type [a b c]
+                 (cond
+                   (= a b c) :equilateral
+                   (isosceles? a b c) :isosceles
+                   :else :scalene)))
+
+(defcoursetest test-31
+               [ch-exercism sub-ch-all-exercises subj-triangle ins-triangle sub-ins-invalid]
+               (defn- valid? [a b c]
+                 (and (> (+ a b) c)
+                      (> (+ b c) a)
+                      (> (+ c a) b)))
+
+               (defn- isosceles? [a b c]
+                 (or (= a b)
+                     (= b c)
+                     (= c a)))
+
+               (defn triangle-type [a b c]
+                 (cond
+                   (= a b c) :equilateral
+                   (not (valid? a b c)) :illogical
+                   (isosceles? a b c) :isosceles
+                   :else :scalene)))
