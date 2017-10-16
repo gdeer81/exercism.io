@@ -314,7 +314,36 @@
 
                                                                        (testing
                                                                          (is (= "(123) 456-7890" (pretty-print "1234567890")) :default :advanced)
-                                                                         (is (= "(123) 456-7890" (pretty-print "11234567890")) :default :advanced)))))))))
+                                                                         (is (= "(123) 456-7890" (pretty-print "11234567890")) :default :advanced)))))
+
+                                (subject 'subj-leap-year
+                                         "Leap Year"
+
+                                         (learn
+                                           (text
+                                             (p "Given a year, report if it is a leap year.")
+                                             (p "The tricky thing here is that a leap year in the Gregorian calendar occurs:")
+                                             (p (hi "on every year that is evenly divisible by 4"))
+                                             (p (hi "except every year that is evenly divisible by 100"))
+                                             (p (hi "unless the year is also evenly divisible by 400"))
+                                             (p "For example, 1997 is not a leap year, but 1996 is. 1900 is not a leap year, but 2000 is.")))
+                                         (instruction 'ins-leap
+                                                      (run-pre-tests? false)
+                                                      (initial-code "(ns exercises.leap-year)\n\n(defn leap-year?\n  [year]\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-leap
+                                                                       (text
+                                                                         (code (true? (leap-year? 1996)))
+                                                                         (code (false? (leap-year? 1997)))
+                                                                         (code (false? (leap-year? 1900)))
+                                                                         (code (true? (leap-year? 2400))))
+
+                                                                       (testing
+                                                                         (is (true? (leap-year? 1996)) :default :advanced)
+                                                                         (is (false? (leap-year? 1997)) :default :advanced)
+                                                                         (is (false? (leap-year? 1900)) :default :advanced)
+                                                                         (is (true? (leap-year? 2400)) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -601,3 +630,16 @@
                (defn pretty-print
                  [digits]
                  (format "(%s) %s-%s" (area-code digits) (exchange digits) (subscriber digits))))
+
+(defcoursetest test-19
+               [ch-exercism sub-ch-all-exercises subj-leap-year ins-leap sub-ins-leap]
+               (defn- divisible-by? [a b]
+                 (zero? (mod a b)))
+
+               (defn leap-year? [year]
+                 (cond
+                   (divisible-by? year 400) true
+                   (divisible-by? year 100) false
+                   (divisible-by? year 4)   true
+                   :else false)))
+
