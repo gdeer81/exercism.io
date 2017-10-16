@@ -502,7 +502,7 @@
 
                                          (learn
                                            (text
-                                             (p "Determine if a triangle is equilateral, isosceles, or scalene.")
+                                             (p "Determine if a triangle is " (hi "equilateral") ", " (hi "isosceles") ", or " (hi "scalene") ".")
                                              (p "An " (italic "equilateral") " triangle has all three sides the same length.")
                                              (p "An " (italic "isosceles") " triangle has at least two sides the same length. (It is sometimes specified as having exactly two sides the same length, but for the purposes of this exercise we'll say at least two.)")
                                              (p "A " (italic "scalene") " triangle has all sides of different lengths.")
