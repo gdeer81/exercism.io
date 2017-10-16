@@ -452,7 +452,49 @@
                                                                        (testing
                                                                          (is (= [2043 1 1] (gigasecond 2011 4 25)) :default :advanced)
                                                                          (is (= [2009 2 19] (gigasecond 1977 6 13)) :default :advanced)
-                                                                         (is (= [1991 3 27] (gigasecond 1959 7 19)) :default :advanced)))))))))
+                                                                         (is (= [1991 3 27] (gigasecond 1959 7 19)) :default :advanced)))))
+
+                                (subject 'subj-grains
+                                         "Grains"
+
+                                         (learn
+                                           (text
+                                             (p "Calculate the number of grains of wheat on a chessboard given that the number on each square doubles.")
+                                             (p "There once was a wise servant who saved the life of a prince. The king promised to pay whatever the servant could dream up. Knowing that the king loved chess, the servant told the king he would like to have grains of wheat. One grain on the first square of a chess board. Two grains on the next. Four on the third, and so on.")
+
+                                             (p "There are 64 squares on a chessboard.")
+                                             (p "Write code that shows: " (bold "how many grains were on each square, and the total number of grains"))))
+
+                                         (instruction 'ins-grains
+                                                      (run-pre-tests? true)
+                                                      (initial-code "(ns exercises.grains)\n\n(defn square\n  [n]\n  )\n\n(defn total\n  []\n  )")
+                                                      (rule :no-rule? true)
+
+                                                      (sub-instruction 'sub-ins-grains
+                                                                       (text
+                                                                         (code (= 1 (square 1)))
+                                                                         (code (= 2 (square 2)))
+                                                                         (code (= 4 (square 3)))
+                                                                         (code (= 8 (square 4)))
+                                                                         (code (= 32768 (square 16)))
+                                                                         (code (= 2147483648 (square 32)))
+                                                                         (code (= 9223372036854775808 (square 64))))
+
+                                                                       (testing
+                                                                         (is (= 1 (square 1)) :default :advanced)
+                                                                         (is (= 2 (square 2)) :default :advanced)
+                                                                         (is (= 4 (square 3)) :default :advanced)
+                                                                         (is (= 8 (square 4)) :default :advanced)
+                                                                         (is (= 32768 (square 16)) :default :advanced)
+                                                                         (is (= 2147483648 (square 32)) :default :advanced)
+                                                                         (is (= 9223372036854775808 (square 64)) :default :advanced)))
+
+                                                      (sub-instruction 'sub-ins-grains-total
+                                                                       (text
+                                                                         (code (= 18446744073709551615 (total))))
+
+                                                                       (testing
+                                                                         (is (= 18446744073709551615 (total)) :default :advanced)))))))))
 
 
 (defcoursetest test-1
@@ -910,3 +952,26 @@
                (defn gigasecond [year month day]
                  (-> (build-offset-cal year month day ->seconds)
                      cal->date-vec)))
+
+(defcoursetest test-26
+               [ch-exercism sub-ch-all-exercises subj-grains ins-grains sub-ins-grains]
+               (defn- expt [number exponent]
+                 (if (= exponent 0)
+                   1
+                   (apply * (repeat exponent number))))
+
+               (defn square [number]
+                 (expt (bigint 2) (- number 1))))
+
+(defcoursetest test-27
+               [ch-exercism sub-ch-all-exercises subj-grains ins-grains sub-ins-grains-total]
+               (defn- expt [number exponent]
+                 (if (= exponent 0)
+                   1
+                   (apply * (repeat exponent number))))
+
+               (defn square [number]
+                 (expt (bigint 2) (- number 1)))
+
+               (defn total []
+                 (- (square 65) 1)))
